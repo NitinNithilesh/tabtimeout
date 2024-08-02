@@ -9,7 +9,7 @@ const shouldTabBeRemoved = async (tab) => {
     const tabLastAccessed = tab.lastAccessed;
     const tabLastAccessedTimeDiff = (currentTime - tabLastAccessed) / 1000 / 60;
     if (tabLastAccessedTimeDiff >= extensionValues.inactivityThreshold) {
-      console.log('Tab should be closed', tab);
+      console.log('Tab should be closed', tab, extensionValues, tabLastAccessedTimeDiff);
       return true;
     }
   }
@@ -24,20 +24,21 @@ const fetchAllTabs = async () => {
 const validateAndRemoveTabs = async () => {
   const allOpenTabs = await fetchAllTabs();
   console.log('AOT', allOpenTabs);
-  if (allOpenTabs.length > 0) {
-    allOpenTabs.forEach(async (tab) => {
-      const shouldCloseTab = await shouldTabBeRemoved(tab);
-      if (shouldCloseTab) {
-        chrome.tabs.remove(tab.id).catch((err) => console.log(`Error while removing tab`, err));
-      }
-    });
+  for (let i = 0; i < allOpenTabs.length; i++) {
+    const tab = allOpenTabs[i];
+    const shouldCloseTab = await shouldTabBeRemoved(tab);
+    if (shouldCloseTab) {
+      chrome.tabs.remove(tab.id).catch((err) => console.log(`Error while removing tab`, err));
+    }
   }
 };
 
 const updatedExtensionValues = (request) => {
+  console.log('Updating extension values', request);
   if (request.featureToggle) {
     extensionValues.featureToggle = request.featureToggle;
   }
+
   if (request.inactivityThreshold) {
     extensionValues.inactivityThreshold = request.inactivityThreshold;
   }
