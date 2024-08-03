@@ -21,5 +21,11 @@
   ],
   "externally_connectable": {
     "matches": ["http://*/*", "https://*/*"]
+  },
+  "icons": {
+    "16": "tabtimeoutlogo.png",
+    "32": "tabtimeoutlogo.png",
+    "48": "tabtimeoutlogo.png",
+    "128": "tabtimeoutlogo.png"
   }
 }
