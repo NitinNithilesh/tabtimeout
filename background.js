@@ -2,6 +2,7 @@ const extensionValues = {
   featureToggle: false,
   inactivityThreshold: 60,
 };
+let WORKER_ACTIVE = false;
 
 const shouldTabBeRemoved = async (tab) => {
   if (tab.lastAccessed) {
@@ -22,6 +23,11 @@ const fetchAllTabs = async () => {
 };
 
 const validateAndRemoveTabs = async () => {
+  if (WORKER_ACTIVE) {
+    console.log(`Worker already active, so skipping this turn`);
+    return;
+  }
+  WORKER_ACTIVE = true;
   const allOpenTabs = await fetchAllTabs();
   console.log('AOT', allOpenTabs);
   for (let i = 0; i < allOpenTabs.length; i++) {
@@ -31,6 +37,7 @@ const validateAndRemoveTabs = async () => {
       chrome.tabs.remove(tab.id).catch((err) => console.log(`Error while removing tab`, err));
     }
   }
+  WORKER_ACTIVE = false;
 };
 
 const updatedExtensionValues = (request) => {
