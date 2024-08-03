@@ -1,3 +1,4 @@
+const LOG_PREFIX = '[ TAB_TIMEOUT_CS ]';
 const globalStorage = {
   featureToggle: false,
   inactivityThreshold: 60,
@@ -55,5 +56,5 @@ try {
   document.getElementById('disabledradiobtn').addEventListener('change', disableFeatureToggle);
   document.getElementById('inactivitythreshold').addEventListener('change', saveInactivityThreshold);
 } catch (err) {
-  console.log('Error on listening to DOM events', err);
+  console.log(`${LOG_PREFIX} Error on listening to DOM events`, err);
 }

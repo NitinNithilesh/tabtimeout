@@ -1,3 +1,4 @@
+const LOG_PREFIX = '[ TAB_TIMEOUT ]';
 const extensionValues = {
   featureToggle: false,
   inactivityThreshold: 60,
@@ -10,7 +11,7 @@ const shouldTabBeRemoved = async (tab) => {
     const tabLastAccessed = tab.lastAccessed;
     const tabLastAccessedTimeDiff = (currentTime - tabLastAccessed) / 1000 / 60;
     if (tabLastAccessedTimeDiff >= extensionValues.inactivityThreshold) {
-      console.log('Tab should be closed', tab, extensionValues, tabLastAccessedTimeDiff);
+      console.log(`${LOG_PREFIX} Tab should be closed`, tab, extensionValues, tabLastAccessedTimeDiff);
       return true;
     }
   }
@@ -24,24 +25,24 @@ const fetchAllTabs = async () => {
 
 const validateAndRemoveTabs = async () => {
   if (WORKER_ACTIVE) {
-    console.log(`Worker already active, so skipping this turn`);
+    console.log(`${LOG_PREFIX} Worker already active, so skipping this turn`);
     return;
   }
   WORKER_ACTIVE = true;
   const allOpenTabs = await fetchAllTabs();
-  console.log('AOT', allOpenTabs);
+  console.log(`${LOG_PREFIX} List of all open tabs`, allOpenTabs);
   for (let i = 0; i < allOpenTabs.length; i++) {
     const tab = allOpenTabs[i];
     const shouldCloseTab = await shouldTabBeRemoved(tab);
     if (shouldCloseTab) {
-      chrome.tabs.remove(tab.id).catch((err) => console.log(`Error while removing tab`, err));
+      chrome.tabs.remove(tab.id).catch((err) => console.log(`${LOG_PREFIX} Error while removing tab`, err));
     }
   }
   WORKER_ACTIVE = false;
 };
 
 const updatedExtensionValues = (request) => {
-  console.log('Updating extension values', request);
+  console.log(`${LOG_PREFIX} Updating extension values`, request);
   if (request.featureToggle) {
     extensionValues.featureToggle = request.featureToggle;
   }
