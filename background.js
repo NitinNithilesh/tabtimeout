@@ -16,17 +16,13 @@ const bootstrap = async () => {
   if (result && result.inactivityThreshold) {
     INACTIVITY_THRESHOLD = result.inactivityThreshold;
   }
+
+  return;
 };
 
 const shouldTabBeRemoved = async (tab) => {
-  const currentTime = new Date().getTime();
-
-  if (currentTime < TAB_REMOVAL_INTERVAL) {
-    console.log(`${LOG_PREFIX} Tab remove interval has not yet arrived. Skipping`, currentTime, TAB_REMOVAL_INTERVAL, tab);
-    return false;
-  }
-
   if (tab.lastAccessed) {
+    const currentTime = new Date().getTime();
     const tabLastAccessed = tab.lastAccessed;
     const tabLastAccessedTimeDiff = (currentTime - tabLastAccessed) / 1000 / 60;
     if (tabLastAccessedTimeDiff >= INACTIVITY_THRESHOLD) {
@@ -47,9 +43,18 @@ const validateAndRemoveTabs = async () => {
     console.log(`${LOG_PREFIX} Worker already active, so skipping this turn`);
     return;
   }
+
+  const currentTime = new Date().getTime();
+  if (currentTime < TAB_REMOVAL_INTERVAL) {
+    console.log(`${LOG_PREFIX} Tab remove interval has not yet arrived. Skipping`, currentTime, TAB_REMOVAL_INTERVAL);
+    return;
+  }
+
   WORKER_ACTIVE = true;
+
   const allOpenTabs = await fetchAllTabs();
   console.log(`${LOG_PREFIX} List of all open tabs`, allOpenTabs);
+
   for (let i = 0; i < allOpenTabs.length; i++) {
     const tab = allOpenTabs[i];
     const shouldCloseTab = await shouldTabBeRemoved(tab);
@@ -57,6 +62,7 @@ const validateAndRemoveTabs = async () => {
       chrome.tabs.remove(tab.id).catch((err) => console.log(`${LOG_PREFIX} Error while removing tab`, err));
     }
   }
+
   WORKER_ACTIVE = false;
 };
 
