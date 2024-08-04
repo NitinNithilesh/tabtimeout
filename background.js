@@ -6,11 +6,23 @@ let WORKER_ACTIVE = false;
 let TAB_ACTIVE_TIME;
 let TAB_REMOVAL_INTERVAL;
 
+const bootstrap = async () => {
+  const result = await chrome.storage.sync.get(['featureToggle', 'inactivityThreshold']);
+
+  if (result && result.featureToggle) {
+    FEAURE_TOGGLE = result.featureToggle;
+  }
+
+  if (result && result.inactivityThreshold) {
+    INACTIVITY_THRESHOLD = result.inactivityThreshold;
+  }
+};
+
 const shouldTabBeRemoved = async (tab) => {
   const currentTime = new Date().getTime();
 
   if (currentTime < TAB_REMOVAL_INTERVAL) {
-    console.log(`${LOG_PREFIX} Tab remove interval has not yet arrived. Skipping`, tab);
+    console.log(`${LOG_PREFIX} Tab remove interval has not yet arrived. Skipping`, currentTime, TAB_REMOVAL_INTERVAL, tab);
     return false;
   }
 
@@ -77,7 +89,9 @@ const updateNextTabRemoveInterval = () => {
   console.log(`${LOG_PREFIX} Tab removal interval updated`, TAB_REMOVAL_INTERVAL);
 };
 
-const backgroundWorker = () => {
+const backgroundWorker = async () => {
+  await bootstrap();
+
   chrome.tabs.onUpdated.addListener(async () => {
     validateAndRemoveTabs();
   });
