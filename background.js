@@ -35,7 +35,7 @@ const shouldTabBeRemoved = async (tab) => {
 };
 
 const fetchAllTabs = async () => {
-  const allTabs = (await chrome.tabs.query({ active: false, pinned: false, groupId: -1 })) || [];
+  const allTabs = (await chrome.tabs.query({ active: false, pinned: false, groupId: -1, status: 'complete' })) || [];
   return allTabs;
 };
 
