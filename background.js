@@ -5,6 +5,7 @@ let INACTIVITY_THRESHOLD = 60;
 let WORKER_ACTIVE = false;
 let TAB_ACTIVE_TIME;
 let TAB_REMOVAL_INTERVAL;
+let PREV_DEVICE_STATUS = 'active';
 
 const bootstrap = async () => {
   const result = await chrome.storage.sync.get(['featureToggle', 'inactivityThreshold']);
@@ -76,12 +77,19 @@ const updatedExtensionValues = (request) => {
   if (request.inactivityThreshold) {
     INACTIVITY_THRESHOLD = request.inactivityThreshold;
   }
+
+  updateDeviceActiveTime();
 };
 
 const onDeviceStateChange = (deviceStatus) => {
-  if (deviceStatus === 'active') {
+  console.log(`${LOG_PREFIX} Device status has been updated`, deviceStatus);
+
+  // To update the device active time, the current status has to be active and the previous device status should be locked
+  if (['active', 'idle'].includes(deviceStatus) && PREV_DEVICE_STATUS === 'locked') {
     updateDeviceActiveTime();
   }
+
+  PREV_DEVICE_STATUS = deviceStatus;
 };
 
 const updateDeviceActiveTime = () => {
@@ -96,6 +104,8 @@ const updateNextTabRemoveInterval = () => {
 };
 
 const backgroundWorker = async () => {
+  console.log(`${LOG_PREFIX} Background worker has been triggered`);
+
   await bootstrap();
 
   chrome.tabs.onUpdated.addListener(async () => {

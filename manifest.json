@@ -23,9 +23,9 @@
     "matches": ["http://*/*", "https://*/*"]
   },
   "icons": {
-    "16": "tabtimeoutlogo.png",
-    "32": "tabtimeoutlogo.png",
-    "48": "tabtimeoutlogo.png",
-    "128": "tabtimeoutlogo.png"
+    "16": "logo.png",
+    "32": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
   }
 }
